@@ -43,6 +43,11 @@ func (p *RedisPool) init(opt RedisPoolOption) error {
 		DB:       opt.DB,
 	}
 	c := redis.NewClient(&redisOpt)
+	err := c.Ping().Err()
+	if err != nil {
+		return err
+	}
+
 	for i := 0; i < p.p.size; i++ {
 		p.p.c <- struct{}{}
 	}

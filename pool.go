@@ -8,8 +8,8 @@ import (
 // Conn 连接接口定义
 type Conn interface{}
 
-// ConnPool 连接池接口定义
-type ConnPool interface {
+// Pool 连接池接口定义
+type Pool interface {
 	Get() Conn
 	Put(Conn)
 	Exec(...interface{})

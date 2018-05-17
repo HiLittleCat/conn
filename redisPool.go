@@ -60,7 +60,7 @@ func (p *RedisPool) Close() {
 }
 
 // Get 获取一个redis连接
-func (p *RedisPool) Get() Conn {
+func (p *RedisPool) Get() *redis.Client {
 	_ = <-p.p.c
 	p.p.m.Lock()
 	defer p.p.m.Unlock()
@@ -68,17 +68,16 @@ func (p *RedisPool) Get() Conn {
 }
 
 // Put 释放一个redis连接
-func (p *RedisPool) Put(c Conn) {
+func (p *RedisPool) Put(c *redis.Client) {
 	p.p.m.Lock()
 	defer p.p.m.Unlock()
-	c.(*redis.Client).Close()
 	p.p.c <- struct{}{}
 }
 
 // Exec 使用连接池
 func (p *RedisPool) Exec(callback func(*redis.Client)) {
 	start := time.Now()
-	client := p.Get().(*redis.Client)
+	client := p.Get()
 	defer func() {
 		p.Put(client)
 		if err := recover(); err != nil {

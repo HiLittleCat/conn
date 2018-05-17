@@ -44,7 +44,7 @@ func (p *MgoPool) init(opt MgoPoolOption) error {
 }
 
 // Get 获取一个mongo连接
-func (p *MgoPool) Get() Conn {
+func (p *MgoPool) Get() *mgo.Session {
 	_ = <-p.p.c
 	p.p.m.Lock()
 	defer p.p.m.Unlock()
@@ -62,7 +62,7 @@ func (p *MgoPool) Put(c Conn) {
 // Exec 使用连接池
 func (p *MgoPool) Exec(collection string, callback func(*mgo.Collection)) {
 	start := time.Now()
-	_session := p.Get().(*mgo.Session)
+	_session := p.Get()
 	defer func() {
 		p.Put(_session)
 		if err := recover(); err != nil {

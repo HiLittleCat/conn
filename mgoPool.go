@@ -3,9 +3,8 @@ package conn
 import (
 	"time"
 
-	"github.com/HiLittleCat/goSeed/config"
+	"github.com/globalsign/mgo"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/mgo.v2"
 )
 
 // MgoPool mongodb 连接池
@@ -16,9 +15,10 @@ type MgoPool struct {
 
 // MgoPoolOption mongodb 连接池配置项
 type MgoPoolOption struct {
-	Size   int
-	Host   string
-	DbName string
+	Size    int
+	Host    string
+	DbName  string
+	SlowRes time.Duration
 }
 
 // NewMgoPool 创建一个 mongodb 连接池
@@ -70,7 +70,7 @@ func (p *MgoPool) Exec(collection string, callback func(*mgo.Collection)) {
 			panic(err)
 		}
 		t := time.Since(start)
-		if t >= config.Default.MongoDB.SlowRes {
+		if t >= p.opt.SlowRes && p.opt.SlowRes != 0 {
 			log.Warnln("mongodb exec ", collection, t)
 		}
 	}()
